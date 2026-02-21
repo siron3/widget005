@@ -296,6 +296,36 @@ const MONTHS_JP = ['1月','2月','3月','4月','5月','6月','7月','8月','9月
 const DOW_JP = ['日','月','火','水','木','金','土'];
 const EV_COLORS = ['#5b9bd5','#70b77e','#e07b6a','#c47ec0','#e0a045','#5bb8c4','#d4845a','#7b8ec4'];
 
+// Google Calendar colorId → 色
+const GCAL_COLOR_MAP = {
+  '1':'#ac725e','2':'#d06b64','3':'#f83a22','4':'#fa573c','5':'#ff7537',
+  '6':'#ffad46','7':'#42d692','8':'#16a765','9':'#7bd148','10':'#b3dc6c',
+  '11':'#fbe983','12':'#fad165','13':'#92e1c0','14':'#9fe1e7','15':'#9fc6e7',
+  '16':'#4986e7','17':'#9a9cff','18':'#b99aff','19':'#c2c2c2','20':'#cabdbf',
+  '21':'#cca6ac','22':'#f691b2','23':'#cd74e6','24':'#a47ae2',
+};
+
+// カレンダーID → 色のマップ（カレンダーリストから取得）
+let calendarColorMap = {};
+
+// イベント名ハッシュ → 色インデックス（方法A用）
+function hashColor(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
+  return Math.abs(h) % EV_COLORS.length;
+}
+
+// 方法D: Googleカレンダー色 → なければ名前ベースハッシュ
+function getEventColor(ev) {
+  // イベント個別の色設定
+  if (ev.colorId && GCAL_COLOR_MAP[ev.colorId]) return GCAL_COLOR_MAP[ev.colorId];
+  // カレンダー単位の色
+  const calId = ev.organizer?.email || 'primary';
+  if (calendarColorMap[calId]) return calendarColorMap[calId];
+  // フォールバック: タイトルハッシュ
+  return EV_COLORS[hashColor(ev.summary || '')];
+}
+
 const HOLIDAYS = {
   '2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日',
   '2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日',
@@ -340,17 +370,33 @@ function handleLogout() {
   document.getElementById('headerSub').textContent = 'Googleカレンダーと連携';
 }
 
-function showCalArea() {
+async function showCalArea() {
   document.getElementById('loginArea').style.display = 'none';
   document.getElementById('calArea').style.display = 'block';
   document.getElementById('headerSub').textContent = 'Googleカレンダー連携中 ✦';
   document.getElementById('headerRight').innerHTML =
     `<button class="logout-btn" onclick="handleLogout()">ログアウト</button>`;
+  await fetchCalendarColors();
 }
 
 // ── データ取得 ──
 function setLoading(val) {
   document.getElementById('loadingBar').classList.toggle('visible', val);
+}
+
+async function fetchCalendarColors() {
+  try {
+    const res = await fetch(
+      'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    calendarColorMap = {};
+    (data.items || []).forEach(cal => {
+      if (cal.backgroundColor) calendarColorMap[cal.id] = cal.backgroundColor;
+    });
+  } catch(e) { /* 色取得失敗はサイレントに無視 */ }
 }
 
 async function fetchEvents() {
@@ -365,7 +411,7 @@ async function fetchEvents() {
     );
     if (res.status === 401) { showToast('セッションが切れました。再ログインしてください。'); handleLogout(); return; }
     const data = await res.json();
-    allEvents = (data.items || []).map((ev, i) => ({ ...ev, colorIdx: i }));
+    allEvents = data.items || [];
     renderCalendar();
     renderUpcoming();
   } catch(e) {
@@ -429,7 +475,7 @@ function renderCalendar() {
       let evHtml = '';
       dayEvents.slice(0, maxShow).forEach(ev => {
         const isAllDay = !!ev.start.date;
-        const color = EV_COLORS[ev.colorIdx % EV_COLORS.length];
+        const color = getEventColor(ev);
         const title = ev.summary || '(無題)';
         if (isAllDay) {
           evHtml += `<span class="event-chip allday" style="background:${color}" title="${title}">${title}</span>`;
@@ -479,7 +525,7 @@ function renderUpcoming() {
     const startRaw = ev.start.date || ev.start.dateTime;
     const start = new Date(startRaw);
     const isAllDay = !!ev.start.date;
-    const color = EV_COLORS[ev.colorIdx % EV_COLORS.length];
+    const color = getEventColor(ev);
     const dow = DOW_JP[start.getDay()];
     const isSat = start.getDay() === 6, isSun = start.getDay() === 0;
     const evDk = startRaw.substring(0, 10);
