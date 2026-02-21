@@ -25,6 +25,15 @@
     --border: rgba(139,111,94,0.15);
     --shadow: rgba(139,111,94,0.10);
     --radius: 14px;
+    --ev1: #5b9bd5;
+    --ev2: #70b77e;
+    --ev3: #e07b6a;
+    --ev4: #c47ec0;
+    --ev5: #e0a045;
+    --ev6: #5bb8c4;
+    --ev7: #d4845a;
+    --ev8: #7b8ec4;
+    --holiday: #e07b6a;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -37,7 +46,6 @@
   }
   .widget { max-width: 640px; margin: 0 auto; }
 
-  /* Header */
   .header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 16px; padding: 0 2px;
@@ -46,12 +54,11 @@
   .header-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--brown); }
   .header-sub { font-size: 11px; color: var(--text-muted); }
 
-  /* Login button */
+  /* Login */
   .login-card {
     background: var(--white); border: 1.5px solid var(--border);
-    border-radius: var(--radius); padding: 32px 20px;
-    box-shadow: 0 2px 12px var(--shadow);
-    text-align: center;
+    border-radius: var(--radius); padding: 36px 20px;
+    box-shadow: 0 2px 12px var(--shadow); text-align: center;
   }
   .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
   .login-btn {
@@ -63,7 +70,13 @@
     transition: all 0.15s ease; box-shadow: 0 2px 8px var(--shadow);
   }
   .login-btn:hover { background: var(--sky-pale); }
-  .login-btn svg { width: 18px; height: 18px; }
+  .logout-btn {
+    font-size: 10px; padding: 3px 10px;
+    border: 1.5px solid var(--border); background: var(--white);
+    border-radius: 99px; cursor: pointer; color: var(--text-muted);
+    font-family: 'Zen Maru Gothic', sans-serif; transition: all 0.15s;
+  }
+  .logout-btn:hover { border-color: var(--blush); color: var(--blush); }
 
   /* Loading */
   .loading-bar {
@@ -106,54 +119,66 @@
   }
   .today-chip:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); }
 
-  /* Calendar grid */
+  /* Calendar */
   .cal-card {
     background: var(--white); border: 1.5px solid var(--border);
     border-radius: var(--radius); overflow: hidden;
     box-shadow: 0 2px 12px var(--shadow); margin-bottom: 12px;
   }
-  .cal-grid { width: 100%; border-collapse: collapse; }
+  .cal-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
   .cal-grid thead th {
     padding: 8px 4px; font-size: 10px; font-weight: 700;
     color: var(--text-muted); text-align: center;
     border-bottom: 1.5px solid var(--border);
     background: rgba(168,216,234,0.08);
+    width: calc(100% / 7);
   }
-  .cal-grid thead th:first-child { color: var(--blush); }
-  .cal-grid thead th:last-child { color: var(--blush); }
+  .cal-grid thead th.th-sat { color: var(--sky); }
+  .cal-grid thead th.th-sun { color: var(--holiday); }
 
   .cal-cell {
-    vertical-align: top; padding: 4px;
-    border: 1px solid var(--border); min-height: 72px; width: calc(100%/7);
+    vertical-align: top; padding: 4px 3px;
+    border: 1px solid var(--border); height: 80px;
+    width: calc(100% / 7); overflow: hidden;
   }
-  .cal-cell.other-month { background: rgba(239,247,252,0.5); }
+  .cal-cell.other-month { background: rgba(239,247,252,0.4); }
   .cal-cell.is-today { background: rgba(168,216,234,0.1); }
-  .cal-cell.is-weekend .day-num { color: var(--blush); }
 
+  .day-num-wrap {
+    display: flex; align-items: center; justify-content: center; margin-bottom: 3px;
+  }
   .day-num {
-    font-family: 'DM Serif Display', serif; font-size: 13px;
-    color: var(--text-muted); display: block; text-align: center;
-    margin-bottom: 2px; line-height: 1;
+    font-family: 'DM Serif Display', serif; font-size: 12px;
+    color: var(--text-muted); width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; line-height: 1; flex-shrink: 0;
   }
-  .cal-cell.is-today .day-num {
-    background: var(--sky); color: white; border-radius: 50%;
-    width: 22px; height: 22px; display: flex; align-items: center;
-    justify-content: center; margin: 0 auto 2px; font-size: 11px;
-  }
-  .cal-cell.other-month .day-num { color: var(--text-light); opacity: 0.5; }
+  .cal-cell.is-today .day-num { background: var(--sky); color: white; font-size: 11px; }
+  .cal-cell.other-month .day-num { color: var(--text-light); opacity: 0.4; }
+  .cal-cell.is-sat .day-num { color: var(--sky); }
+  .cal-cell.is-sun .day-num, .cal-cell.is-holiday .day-num { color: var(--holiday); }
 
+  .holiday-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--holiday); margin-left: 2px; flex-shrink: 0;
+  }
+
+  .events-wrap { display: flex; flex-direction: column; gap: 1.5px; overflow: hidden; }
   .event-chip {
-    display: block; font-size: 9px; padding: 2px 4px;
-    border-radius: 4px; margin-bottom: 2px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    cursor: default; line-height: 1.4; font-weight: 500;
+    display: block; font-size: 9.5px; padding: 2px 5px;
+    border-radius: 3px; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; font-weight: 600; line-height: 1.5; color: white;
   }
-  .more-events {
-    font-size: 8px; color: var(--text-muted); text-align: center;
-    cursor: pointer; padding: 1px;
+  .event-chip.timed {
+    background: transparent !important; padding-left: 0;
+    display: flex; align-items: center; gap: 3px;
+    color: var(--text); font-weight: 500;
   }
+  .event-chip.timed .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .event-chip.timed .ev-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .more-label { font-size: 8.5px; color: var(--text-muted); padding-left: 2px; line-height: 1.5; }
 
-  /* Upcoming events */
+  /* Upcoming */
   .upcoming-card {
     background: var(--white); border: 1.5px solid var(--border);
     border-radius: var(--radius); overflow: hidden;
@@ -162,35 +187,30 @@
   .upcoming-header {
     padding: 10px 14px 8px; border-bottom: 1.5px solid var(--border);
     background: rgba(168,216,234,0.08);
-    font-size: 11px; font-weight: 700; color: var(--text-muted);
-    letter-spacing: 0.05em;
+    font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;
   }
-  .upcoming-list { padding: 6px 10px 10px; }
+  .upcoming-list { padding: 4px 10px 10px; }
   .upcoming-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 7px 4px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: stretch; gap: 10px;
+    padding: 8px 4px; border-bottom: 1px solid var(--border);
   }
   .upcoming-item:last-child { border-bottom: none; }
-  .upcoming-date {
-    min-width: 36px; text-align: center;
-    font-family: 'DM Serif Display', serif;
+  .upcoming-date { min-width: 38px; text-align: center; flex-shrink: 0; }
+  .u-day { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--brown); line-height: 1; }
+  .u-dow { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+  .u-dow.is-sat { color: var(--sky); }
+  .u-dow.is-sun { color: var(--holiday); }
+  .upcoming-bar { width: 3px; border-radius: 99px; flex-shrink: 0; }
+  .upcoming-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .upcoming-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .upcoming-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .upcoming-item.is-today-ev { background: rgba(168,216,234,0.07); border-radius: 8px; }
+  .today-badge {
+    font-size: 8px; font-weight: 700; padding: 1px 5px;
+    background: var(--sky); color: white; border-radius: 99px;
+    margin-left: 5px; vertical-align: middle;
   }
-  .upcoming-date .u-day { font-size: 18px; color: var(--brown); line-height: 1; }
-  .upcoming-date .u-dow { font-size: 9px; color: var(--text-muted); }
-  .upcoming-dot { width: 3px; min-width: 3px; border-radius: 99px; align-self: stretch; margin-top: 3px; }
-  .upcoming-info { flex: 1; }
-  .upcoming-title { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.4; }
-  .upcoming-time { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
   .no-events { text-align: center; padding: 20px; font-size: 12px; color: var(--text-muted); }
-
-  /* Logout */
-  .logout-btn {
-    font-size: 10px; padding: 3px 10px;
-    border: 1.5px solid var(--border); background: var(--white);
-    border-radius: 99px; cursor: pointer; color: var(--text-muted);
-    font-family: 'Zen Maru Gothic', sans-serif; transition: all 0.15s;
-  }
-  .logout-btn:hover { border-color: var(--blush); color: var(--blush); }
 
   /* Toast */
   .toast {
@@ -205,6 +225,7 @@
 </head>
 <body>
 <div class="widget">
+
   <div class="header">
     <div class="header-left">
       <div class="header-title">Calendar ✦</div>
@@ -215,16 +236,23 @@
 
   <div class="loading-bar" id="loadingBar"><div class="loading-bar-fill"></div></div>
 
+  <!-- ログイン前 -->
   <div id="loginArea">
     <div class="login-card">
       <p>Googleカレンダーのイベントを表示します</p>
       <button class="login-btn" onclick="handleLogin()">
-        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
         Googleでログイン
       </button>
     </div>
   </div>
 
+  <!-- ログイン後 -->
   <div id="calArea" style="display:none">
     <div class="month-nav">
       <div class="month-label" id="monthLabel">—</div>
@@ -243,7 +271,8 @@
       <table class="cal-grid">
         <thead>
           <tr>
-            <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+            <th>月</th><th>火</th><th>水</th><th>木</th><th>金</th>
+            <th class="th-sat">土</th><th class="th-sun">日</th>
           </tr>
         </thead>
         <tbody id="calBody"></tbody>
@@ -255,8 +284,8 @@
       <div class="upcoming-list" id="upcomingList"></div>
     </div>
   </div>
-</div>
 
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -265,6 +294,16 @@ const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 
 const MONTHS_JP = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 const DOW_JP = ['日','月','火','水','木','金','土'];
+const EV_COLORS = ['#5b9bd5','#70b77e','#e07b6a','#c47ec0','#e0a045','#5bb8c4','#d4845a','#7b8ec4'];
+
+const HOLIDAYS = {
+  '2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日',
+  '2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日',
+  '2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日',
+  '2026-07-20':'海の日','2026-08-11':'山の日','2026-09-21':'敬老の日',
+  '2026-09-23':'秋分の日','2026-10-12':'スポーツの日','2026-11-03':'文化の日',
+  '2026-11-23':'勤労感謝の日',
+};
 
 let tokenClient = null;
 let accessToken = null;
@@ -272,15 +311,7 @@ let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth();
 let allEvents = [];
 
-// Event colors (Google calendar color IDs → our palette)
-const COLOR_MAP = [
-  '#a8d8ea','#b8dfd0','#d4c5e8','#fce8a2','#f2c4b8',
-  '#f9d5d3','#c5dff8','#ffe4b5','#d4edda','#c4a882'
-];
-
-function getColor(i) { return COLOR_MAP[i % COLOR_MAP.length]; }
-
-// ── Google Identity Services ──
+// ── Google認証 ──
 function initGIS() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
@@ -317,7 +348,7 @@ function showCalArea() {
     `<button class="logout-btn" onclick="handleLogout()">ログアウト</button>`;
 }
 
-// ── Fetch events ──
+// ── データ取得 ──
 function setLoading(val) {
   document.getElementById('loadingBar').classList.toggle('visible', val);
 }
@@ -325,22 +356,16 @@ function setLoading(val) {
 async function fetchEvents() {
   if (!accessToken) return;
   setLoading(true);
-
-  const now = new Date();
   const timeMin = new Date(currentYear, currentMonth, 1).toISOString();
   const timeMax = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).toISOString();
-
   try {
     const res = await fetch(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=100`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-    if (res.status === 401) {
-      showToast('セッションが切れました。再ログインしてください。');
-      handleLogout(); return;
-    }
+    if (res.status === 401) { showToast('セッションが切れました。再ログインしてください。'); handleLogout(); return; }
     const data = await res.json();
-    allEvents = data.items || [];
+    allEvents = (data.items || []).map((ev, i) => ({ ...ev, colorIdx: i }));
     renderCalendar();
     renderUpcoming();
   } catch(e) {
@@ -350,72 +375,80 @@ async function fetchEvents() {
   }
 }
 
-// ── Render calendar ──
+// ── カレンダー描画（月曜始まり・等幅固定）──
 function renderCalendar() {
   document.getElementById('monthLabel').textContent =
     `${currentYear}年 ${MONTHS_JP[currentMonth]}`;
 
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
   const today = new Date();
+  const firstDow = new Date(currentYear, currentMonth, 1).getDay();
+  const firstCol = (firstDow === 0) ? 6 : firstDow - 1;
+  const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
 
-  // Build event map: date string -> events[]
   const eventMap = {};
-  allEvents.forEach((ev, i) => {
-    const start = ev.start.date || ev.start.dateTime;
-    const dk = start.substring(0, 10);
+  allEvents.forEach(ev => {
+    const dk = (ev.start.date || ev.start.dateTime).substring(0, 10);
     if (!eventMap[dk]) eventMap[dk] = [];
-    eventMap[dk].push({ ...ev, colorIdx: i });
+    eventMap[dk].push(ev);
   });
 
   let html = '';
-  let dayCount = 0;
-  let date = 1;
-  const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
+  let date = 1, nextDate = 1;
 
   for (let row = 0; row < 6; row++) {
     if (date > lastDate) break;
     html += '<tr>';
     for (let col = 0; col < 7; col++) {
-      let cellDate, isOther = false, isWknd = col === 0 || col === 6;
-      if (row === 0 && col < firstDay) {
-        cellDate = prevLastDate - firstDay + col + 1;
-        isOther = true;
+      let cellDate, isOther = false;
+      const absCol = row * 7 + col;
+      if (absCol < firstCol) {
+        cellDate = prevLastDate - firstCol + absCol + 1; isOther = true;
       } else if (date > lastDate) {
-        cellDate = date - lastDate;
-        date++;
-        isOther = true;
+        cellDate = nextDate++; isOther = true;
       } else {
         cellDate = date++;
       }
 
-      const dk = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(isOther?'??':cellDate).padStart(2,'0')}`;
+      const isSat = col === 5, isSun = col === 6;
+      const realDk = isOther ? null :
+        `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(cellDate).padStart(2,'0')}`;
       const isToday = !isOther &&
-        today.getFullYear()===currentYear &&
-        today.getMonth()===currentMonth &&
-        today.getDate()===cellDate;
+        today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===cellDate;
+      const holiday = realDk ? HOLIDAYS[realDk] : null;
 
       let cls = 'cal-cell';
       if (isOther) cls += ' other-month';
       if (isToday) cls += ' is-today';
-      if (isWknd) cls += ' is-weekend';
+      if (isSat) cls += ' is-sat';
+      if (isSun || holiday) cls += ' is-sun';
+      if (holiday) cls += ' is-holiday';
 
-      const realDk = isOther ? null : `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(cellDate).padStart(2,'0')}`;
       const dayEvents = (realDk && eventMap[realDk]) || [];
-      const maxShow = 2;
+      const maxShow = 3;
       let evHtml = '';
-      dayEvents.slice(0, maxShow).forEach((ev, i) => {
-        const color = getColor(ev.colorIdx);
+      dayEvents.slice(0, maxShow).forEach(ev => {
+        const isAllDay = !!ev.start.date;
+        const color = EV_COLORS[ev.colorIdx % EV_COLORS.length];
         const title = ev.summary || '(無題)';
-        evHtml += `<span class="event-chip" style="background:${color}33;color:${color.replace('ea','8b').replace('d0','6a').replace('e8','7a').replace('a2','8a').replace('b8','8a').replace('d3','8a').replace('f8','8a').replace('b5','8a').replace('da','8a').replace('82','6a')};border-left:2px solid ${color}" title="${title}">${title}</span>`;
+        if (isAllDay) {
+          evHtml += `<span class="event-chip allday" style="background:${color}" title="${title}">${title}</span>`;
+        } else {
+          const t = new Date(ev.start.dateTime);
+          const timeStr = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+          evHtml += `<span class="event-chip timed" title="${title}"><span class="ev-dot" style="background:${color}"></span><span class="ev-label">${timeStr} ${title}</span></span>`;
+        }
       });
       if (dayEvents.length > maxShow) {
-        evHtml += `<div class="more-events">+${dayEvents.length - maxShow}件</div>`;
+        evHtml += `<div class="more-label">+${dayEvents.length - maxShow}</div>`;
       }
 
       html += `<td class="${cls}">
-        <span class="day-num">${cellDate}</span>
-        ${evHtml}
+        <div class="day-num-wrap">
+          <span class="day-num">${cellDate}</span>
+          ${holiday && !isOther ? '<span class="holiday-dot"></span>' : ''}
+        </div>
+        <div class="events-wrap">${evHtml}</div>
       </td>`;
     }
     html += '</tr>';
@@ -423,15 +456,17 @@ function renderCalendar() {
   document.getElementById('calBody').innerHTML = html;
 }
 
-// ── Render upcoming ──
+// ── 直近の予定 ──
 function renderUpcoming() {
-  const now = new Date(); now.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
   const upcoming = allEvents
     .filter(ev => {
-      const start = new Date(ev.start.date || ev.start.dateTime);
-      return start >= now;
+      const s = new Date(ev.start.date || ev.start.dateTime);
+      return new Date(s.getFullYear(), s.getMonth(), s.getDate()) >= today;
     })
-    .slice(0, 7);
+    .slice(0, 8);
 
   if (upcoming.length === 0) {
     document.getElementById('upcomingList').innerHTML =
@@ -440,31 +475,35 @@ function renderUpcoming() {
   }
 
   let html = '';
-  upcoming.forEach((ev, i) => {
+  upcoming.forEach(ev => {
     const startRaw = ev.start.date || ev.start.dateTime;
     const start = new Date(startRaw);
     const isAllDay = !!ev.start.date;
-    const color = getColor(i);
+    const color = EV_COLORS[ev.colorIdx % EV_COLORS.length];
     const dow = DOW_JP[start.getDay()];
+    const isSat = start.getDay() === 6, isSun = start.getDay() === 0;
+    const evDk = startRaw.substring(0, 10);
+    const isToday = evDk === todayStr;
+    const holiday = HOLIDAYS[evDk];
     const timeStr = isAllDay ? '終日' :
       `${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}〜`;
 
-    html += `<div class="upcoming-item">
+    html += `<div class="upcoming-item ${isToday?'is-today-ev':''}">
       <div class="upcoming-date">
         <div class="u-day">${start.getDate()}</div>
-        <div class="u-dow">${dow}</div>
+        <div class="u-dow ${isSat?'is-sat':''} ${isSun||holiday?'is-sun':''}">${holiday?'祝':dow}</div>
       </div>
-      <div class="upcoming-dot" style="background:${color}"></div>
+      <div class="upcoming-bar" style="background:${color}"></div>
       <div class="upcoming-info">
-        <div class="upcoming-title">${ev.summary || '(無題)'}</div>
-        <div class="upcoming-time">${timeStr}${ev.location ? ' · ' + ev.location : ''}</div>
+        <div class="upcoming-title">${ev.summary||'(無題)'}${isToday?'<span class="today-badge">今日</span>':''}</div>
+        <div class="upcoming-meta">${timeStr}${holiday?' · '+holiday:''}</div>
       </div>
     </div>`;
   });
   document.getElementById('upcomingList').innerHTML = html;
 }
 
-// ── Navigation ──
+// ── ナビゲーション ──
 async function moveMonth(delta) {
   currentMonth += delta;
   if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -474,8 +513,7 @@ async function moveMonth(delta) {
 
 async function goThisMonth() {
   const now = new Date();
-  currentYear = now.getFullYear();
-  currentMonth = now.getMonth();
+  currentYear = now.getFullYear(); currentMonth = now.getMonth();
   await fetchEvents();
 }
 
@@ -486,13 +524,12 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ── Init ──
+// ── 初期化 ──
 window.onload = () => {
   const script = document.createElement('script');
   script.src = 'https://accounts.google.com/gsi/client';
   script.onload = () => {
     initGIS();
-    // Try restore token
     const saved = localStorage.getItem('gcal_token');
     if (saved) {
       accessToken = saved;
