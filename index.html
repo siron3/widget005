@@ -3,588 +3,336 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendar Widget</title>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<title>Brain Dump</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --sky: #a8d8ea;
-    --sky-light: #d6eef8;
-    --sky-pale: #eef7fc;
-    --brown: #8b6f5e;
-    --brown-light: #c4a882;
-    --brown-pale: #f5ede6;
-    --cream: #fdf8f3;
-    --blush: #f2c4b8;
-    --mint: #b8dfd0;
-    --lavender: #d4c5e8;
-    --yellow: #fce8a2;
-    --text: #4a3728;
-    --text-muted: #9e7c6a;
-    --text-light: #c4a882;
-    --white: #ffffff;
-    --border: rgba(139,111,94,0.15);
-    --shadow: rgba(139,111,94,0.10);
-    --radius: 14px;
-    --ev1: #5b9bd5;
-    --ev2: #70b77e;
-    --ev3: #e07b6a;
-    --ev4: #c47ec0;
-    --ev5: #e0a045;
-    --ev6: #5bb8c4;
-    --ev7: #d4845a;
-    --ev8: #7b8ec4;
-    --holiday: #e07b6a;
+    --sky: #a8d8ea; --sky-light: #d6eef8; --sky-pale: #E4F2FC;
+    --brown: #8b6f5e; --brown-light: #c4a882;
+    --text: #4a3728; --text-muted: #9e7c6a; --text-light: #c4a882;
+    --white: #ffffff; --border: rgba(139,111,94,0.15); --shadow: rgba(139,111,94,0.10);
+    --radius: 14px; --mint: #b8dfd0; --blush: #f2c4b8;
+    --dump-bg: #f2f2f2; --dump-border: #e0e0e0;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--sky-pale); border-radius: 99px; } ::-webkit-scrollbar-thumb { background: var(--sky); border-radius: 99px; }
   body {
     font-family: 'Zen Maru Gothic', sans-serif;
-    background: var(--sky-pale);
-    min-height: 100vh;
-    padding: 20px 16px 40px;
-    color: var(--text);
+    background: var(--sky-pale); min-height: 100vh;
+    padding: 16px 16px 40px; color: var(--text);
     -webkit-font-smoothing: antialiased;
   }
-  .widget { max-width: 640px; margin: 0 auto; }
+  .widget { max-width: 560px; margin: 0 auto; }
 
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 16px; padding: 0 2px;
-  }
+  /* ヘッダー */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .header-left { display: flex; flex-direction: column; gap: 2px; }
-  .header-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--brown); }
-  .header-sub { font-size: 11px; color: var(--text-muted); }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--brown); }
+  .header-date { font-size: 11px; color: var(--text-muted); }
+  .header-right { display: flex; align-items: center; gap: 6px; }
 
-  /* Login */
-  .login-card {
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: var(--radius); padding: 36px 20px;
-    box-shadow: 0 2px 12px var(--shadow); text-align: center;
+  /* 日付ナビ */
+  .nav-btn {
+    width: 26px; height: 26px; border: 1.5px solid var(--border);
+    background: var(--white); border-radius: 8px; cursor: pointer;
+    color: var(--text-muted); font-size: 14px; line-height: 1;
+    transition: all 0.15s;
   }
-  .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-  .login-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: 99px;
-    border: 1.5px solid var(--sky); background: var(--white);
-    color: var(--brown); font-size: 13px; font-weight: 700;
-    cursor: pointer; font-family: 'Zen Maru Gothic', sans-serif;
-    transition: all 0.15s ease; box-shadow: 0 2px 8px var(--shadow);
-  }
-  .login-btn:hover { background: var(--sky-pale); }
-  .logout-btn {
-    font-size: 10px; padding: 3px 10px;
+  .nav-btn:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); }
+  .today-btn {
+    font-size: 10px; font-weight: 700; padding: 3px 10px;
     border: 1.5px solid var(--border); background: var(--white);
     border-radius: 99px; cursor: pointer; color: var(--text-muted);
     font-family: 'Zen Maru Gothic', sans-serif; transition: all 0.15s;
   }
-  .logout-btn:hover { border-color: var(--blush); color: var(--blush); }
+  .today-btn:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); }
+  .today-btn.is-today { border-color: var(--sky); color: var(--brown); }
 
-  /* Loading */
-  .loading-bar {
-    height: 3px; background: var(--sky-light); border-radius: 99px;
-    margin-bottom: 12px; overflow: hidden; opacity: 0; transition: opacity 0.2s;
+  /* MIND RESETボタン */
+  .reset-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 99px;
+    background: var(--white); border: 1.5px solid var(--border);
+    cursor: pointer; font-family: 'Josefin Sans', sans-serif;
+    font-size: 13px; font-weight: 600; color: var(--text-muted);
+    letter-spacing: 0.08em; transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--shadow);
+    width: 100%; justify-content: center; margin-bottom: 12px;
   }
-  .loading-bar.visible { opacity: 1; }
-  .loading-bar-fill {
-    height: 100%; background: linear-gradient(90deg, var(--sky), var(--brown-light));
-    border-radius: 99px; animation: loadingAnim 1.2s ease-in-out infinite;
-  }
-  @keyframes loadingAnim {
-    0% { width: 0%; margin-left: 0; }
-    50% { width: 70%; margin-left: 15%; }
-    100% { width: 0%; margin-left: 100%; }
-  }
+  .reset-btn:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
+  .reset-btn:active { transform: translateY(0); }
+  .reset-icon { font-size: 16px; }
 
-  /* Month nav */
-  .month-nav {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px; background: var(--white);
-    border: 1.5px solid var(--border); border-radius: var(--radius);
-    padding: 10px 14px; box-shadow: 0 2px 8px var(--shadow);
+  /* ダンプリスト */
+  .dump-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+  /* 個別ボックス */
+  .dump-box {
+    background: var(--dump-bg); border: 1.5px solid var(--dump-border);
+    border-radius: 10px; padding: 10px 12px;
+    display: flex; gap: 8px; align-items: flex-start;
+    animation: slideIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .month-label { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--brown); }
-  .nav-group { display: flex; gap: 4px; align-items: center; }
-  .nav-btn {
-    width: 28px; height: 28px; border: 1.5px solid var(--border);
-    background: var(--white); border-radius: 8px; cursor: pointer;
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .dump-textarea {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px;
+    color: var(--text); resize: none; min-height: 40px;
+    line-height: 1.6;
+  }
+  .dump-textarea::placeholder { color: #bbb; }
+  .dump-delete {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: none; background: transparent; cursor: pointer;
+    color: #ccc; font-size: 14px; line-height: 1;
+    transition: all 0.15s; flex-shrink: 0; margin-top: 2px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--text-muted); transition: all 0.15s ease;
   }
-  .nav-btn:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); }
-  .nav-btn svg { width: 12px; height: 12px; }
-  .today-chip {
-    font-size: 10px; font-weight: 700; padding: 3px 10px;
+  .dump-delete:hover { background: var(--blush); color: var(--brown); }
+
+  /* 空の状態 */
+  .empty-state {
+    text-align: center; padding: 32px 20px;
+    color: var(--text-muted); font-size: 13px;
+    background: var(--white); border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+  }
+  .empty-state .empty-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+
+  /* フッター */
+  .footer { display: flex; align-items: center; justify-content: space-between; }
+  .count-label { font-size: 11px; color: var(--text-muted); }
+  .clear-btn {
+    font-size: 10px; font-weight: 700; padding: 4px 12px;
     border: 1.5px solid var(--border); background: var(--white);
     border-radius: 99px; cursor: pointer; color: var(--text-muted);
-    font-family: 'Zen Maru Gothic', sans-serif; transition: all 0.15s ease;
+    font-family: 'Zen Maru Gothic', sans-serif; transition: all 0.15s;
   }
-  .today-chip:hover { background: var(--sky-pale); border-color: var(--sky); color: var(--brown); }
+  .clear-btn:hover { border-color: var(--blush); color: #e07b6a; }
 
-  /* Calendar */
-  .cal-card {
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-    box-shadow: 0 2px 12px var(--shadow); margin-bottom: 12px;
-  }
-  .cal-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .cal-grid thead th {
-    padding: 8px 4px; font-size: 10px; font-weight: 700;
-    color: var(--text-muted); text-align: center;
-    border-bottom: 1.5px solid var(--border);
-    background: rgba(168,216,234,0.08);
-    width: calc(100% / 7);
-  }
-  .cal-grid thead th.th-sat { color: var(--sky); }
-  .cal-grid thead th.th-sun { color: var(--holiday); }
-
-  .cal-cell {
-    vertical-align: top; padding: 4px 3px;
-    border: 1px solid var(--border); height: 80px;
-    width: calc(100% / 7); overflow: hidden;
-  }
-  .cal-cell.other-month { background: rgba(239,247,252,0.4); }
-  .cal-cell.is-today { background: rgba(168,216,234,0.1); }
-
-  .day-num-wrap {
-    display: flex; align-items: center; justify-content: center; margin-bottom: 3px;
-  }
-  .day-num {
-    font-family: 'DM Serif Display', serif; font-size: 12px;
-    color: var(--text-muted); width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; line-height: 1; flex-shrink: 0;
-  }
-  .cal-cell.is-today .day-num { background: var(--sky); color: white; font-size: 11px; }
-  .cal-cell.other-month .day-num { color: var(--text-light); opacity: 0.4; }
-  .cal-cell.is-sat .day-num { color: var(--sky); }
-  .cal-cell.is-sun .day-num, .cal-cell.is-holiday .day-num { color: var(--holiday); }
-
-  .holiday-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--holiday); margin-left: 2px; flex-shrink: 0;
-  }
-
-  .events-wrap { display: flex; flex-direction: column; gap: 1.5px; overflow: hidden; }
-  .event-chip {
-    display: block; font-size: 9.5px; padding: 2px 5px;
-    border-radius: 3px; white-space: nowrap; overflow: hidden;
-    text-overflow: ellipsis; font-weight: 600; line-height: 1.5; color: white;
-  }
-  .event-chip.timed {
-    background: transparent !important; padding-left: 0;
-    display: flex; align-items: center; gap: 3px;
-    color: var(--text); font-weight: 500;
-  }
-  .event-chip.timed .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .event-chip.timed .ev-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-  .more-label { font-size: 8.5px; color: var(--text-muted); padding-left: 2px; line-height: 1.5; }
-
-  /* Upcoming */
-  .upcoming-card {
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-    box-shadow: 0 2px 12px var(--shadow);
-  }
-  .upcoming-header {
-    padding: 10px 14px 8px; border-bottom: 1.5px solid var(--border);
-    background: rgba(168,216,234,0.08);
-    font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;
-  }
-  .upcoming-list { padding: 4px 10px 10px; }
-  .upcoming-item {
-    display: flex; align-items: stretch; gap: 10px;
-    padding: 8px 4px; border-bottom: 1px solid var(--border);
-  }
-  .upcoming-item:last-child { border-bottom: none; }
-  .upcoming-date { min-width: 38px; text-align: center; flex-shrink: 0; }
-  .u-day { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--brown); line-height: 1; }
-  .u-dow { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
-  .u-dow.is-sat { color: var(--sky); }
-  .u-dow.is-sun { color: var(--holiday); }
-  .upcoming-bar { width: 3px; border-radius: 99px; flex-shrink: 0; }
-  .upcoming-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-  .upcoming-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
-  .upcoming-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .upcoming-item.is-today-ev { background: rgba(168,216,234,0.07); border-radius: 8px; }
-  .today-badge {
-    font-size: 8px; font-weight: 700; padding: 1px 5px;
-    background: var(--sky); color: white; border-radius: 99px;
-    margin-left: 5px; vertical-align: middle;
-  }
-  .no-events { text-align: center; padding: 20px; font-size: 12px; color: var(--text-muted); }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--brown); color: white; font-size: 12px; font-weight: 500;
-    padding: 8px 18px; border-radius: 99px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 9999;
+  /* 保存バッジ */
+  .saved-badge {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--brown); color: white; font-size: 12px;
+    padding: 7px 18px; border-radius: 99px;
+    opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 9999;
     font-family: 'Zen Maru Gothic', sans-serif;
   }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .saved-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 <div class="widget">
 
+  <!-- ヘッダー -->
   <div class="header">
     <div class="header-left">
-      <div class="header-title">Calendar ✦</div>
-      <div class="header-sub" id="headerSub">Googleカレンダーと連携</div>
+      <div class="header-title">🧠 Brain Dump</div>
+      <div class="header-date" id="headerDate"></div>
     </div>
-    <div id="headerRight"></div>
-  </div>
-
-  <div class="loading-bar" id="loadingBar"><div class="loading-bar-fill"></div></div>
-
-  <!-- ログイン前 -->
-  <div id="loginArea">
-    <div class="login-card">
-      <p>Googleカレンダーのイベントを表示します</p>
-      <button class="login-btn" onclick="handleLogin()">
-        <svg viewBox="0 0 24 24" width="18" height="18">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Googleでログイン
-      </button>
+    <div class="header-right">
+      <button class="nav-btn" onclick="changeDay(-1)">‹</button>
+      <button class="today-btn" id="todayBtn" onclick="goToday()">今日</button>
+      <button class="nav-btn" onclick="changeDay(1)">›</button>
     </div>
   </div>
 
-  <!-- ログイン後 -->
-  <div id="calArea" style="display:none">
-    <div class="month-nav">
-      <div class="month-label" id="monthLabel">—</div>
-      <div class="nav-group">
-        <button class="nav-btn" onclick="moveMonth(-1)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="today-chip" onclick="goThisMonth()">今月</button>
-        <button class="nav-btn" onclick="moveMonth(1)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-      </div>
-    </div>
+  <!-- MIND RESETボタン -->
+  <button class="reset-btn" onclick="addBox()">
+    <span class="reset-icon">🔄</span>MIND RESET
+  </button>
 
-    <div class="cal-card">
-      <table class="cal-grid">
-        <thead>
-          <tr>
-            <th>月</th><th>火</th><th>水</th><th>木</th><th>金</th>
-            <th class="th-sat">土</th><th class="th-sun">日</th>
-          </tr>
-        </thead>
-        <tbody id="calBody"></tbody>
-      </table>
-    </div>
+  <!-- ダンプリスト -->
+  <div class="dump-list" id="dumpList"></div>
 
-    <div class="upcoming-card">
-      <div class="upcoming-header">✦ 直近の予定</div>
-      <div class="upcoming-list" id="upcomingList"></div>
-    </div>
+  <!-- フッター -->
+  <div class="footer">
+    <div class="count-label" id="countLabel"></div>
+    <button class="clear-btn" onclick="clearAll()">全部クリア</button>
   </div>
 
 </div>
-<div class="toast" id="toast"></div>
+<div class="saved-badge" id="savedBadge">保存しました ✦</div>
 
 <script>
-const CLIENT_ID = '413389999896-amautmb7ibrl1u4ckn3k13jt31lsp954.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+const SUPABASE_URL = 'https://nbduyknklcwqbinvhoih.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZHV5a25rbGN3cWJpbnZob2loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NjMzNjUsImV4cCI6MjA4NzIzOTM2NX0.kzZYqBwfc8vpGszN2W3so2jURsZXlrve4KvUydYKIfA';
 
-const MONTHS_JP = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-const DOW_JP = ['日','月','火','水','木','金','土'];
-const EV_COLORS = ['#5b9bd5','#70b77e','#e07b6a','#c47ec0','#e0a045','#5bb8c4','#d4845a','#7b8ec4'];
-
-// Google Calendar colorId → 色
-const GCAL_COLOR_MAP = {
-  '1':'#ac725e','2':'#d06b64','3':'#f83a22','4':'#fa573c','5':'#ff7537',
-  '6':'#ffad46','7':'#42d692','8':'#16a765','9':'#7bd148','10':'#b3dc6c',
-  '11':'#fbe983','12':'#fad165','13':'#92e1c0','14':'#9fe1e7','15':'#9fc6e7',
-  '16':'#4986e7','17':'#9a9cff','18':'#b99aff','19':'#c2c2c2','20':'#cabdbf',
-  '21':'#cca6ac','22':'#f691b2','23':'#cd74e6','24':'#a47ae2',
-};
-
-// カレンダーID → 色のマップ（カレンダーリストから取得）
-let calendarColorMap = {};
-
-// イベント名ハッシュ → 色インデックス（方法A用）
-function hashColor(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
-  return Math.abs(h) % EV_COLORS.length;
-}
-
-// 方法D: Googleカレンダー色 → なければ名前ベースハッシュ
-function getEventColor(ev) {
-  // イベント個別の色設定
-  if (ev.colorId && GCAL_COLOR_MAP[ev.colorId]) return GCAL_COLOR_MAP[ev.colorId];
-  // カレンダー単位の色
-  const calId = ev.organizer?.email || 'primary';
-  if (calendarColorMap[calId]) return calendarColorMap[calId];
-  // フォールバック: タイトルハッシュ
-  return EV_COLORS[hashColor(ev.summary || '')];
-}
-
-const HOLIDAYS = {
-  '2026-01-01':'元日','2026-01-12':'成人の日','2026-02-11':'建国記念の日',
-  '2026-02-23':'天皇誕生日','2026-03-20':'春分の日','2026-04-29':'昭和の日',
-  '2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日',
-  '2026-07-20':'海の日','2026-08-11':'山の日','2026-09-21':'敬老の日',
-  '2026-09-23':'秋分の日','2026-10-12':'スポーツの日','2026-11-03':'文化の日',
-  '2026-11-23':'勤労感謝の日',
-};
-
-let tokenClient = null;
-let accessToken = null;
-let currentYear = new Date().getFullYear();
-let currentMonth = new Date().getMonth();
-let allEvents = [];
-
-// ── Google認証 ──
-function initGIS() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: async (resp) => {
-      if (resp.error) { showToast('ログインエラー: ' + resp.error); return; }
-      accessToken = resp.access_token;
-      localStorage.setItem('gcal_token', accessToken);
-      showCalArea();
-      await fetchEvents();
+async function sbFetch(path, options = {}) {
+  const { headers: extraHeaders, ...rest } = options;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...rest,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      ...(extraHeaders || {})
     }
   });
+  if (res.status === 204) return null;
+  if (!res.ok) throw new Error(await res.text());
+  const t = await res.text();
+  return t ? JSON.parse(t) : null;
 }
 
-function handleLogin() {
-  tokenClient.requestAccessToken({ prompt: 'consent' });
+let currentDate = new Date(); currentDate.setHours(0,0,0,0);
+let entries = []; // { id, text }
+let saveTimer = null;
+
+function dateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isToday() {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return dateStr(currentDate) === dateStr(t);
+}
+function updateHeader() {
+  const dow = '日月火水木金土'[currentDate.getDay()];
+  document.getElementById('headerDate').textContent =
+    `${currentDate.getMonth()+1}月${currentDate.getDate()}日（${dow}）`;
+  const btn = document.getElementById('todayBtn');
+  btn.classList.toggle('is-today', isToday());
 }
 
-function handleLogout() {
-  google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null;
-  localStorage.removeItem('gcal_token');
-  document.getElementById('loginArea').style.display = 'block';
-  document.getElementById('calArea').style.display = 'none';
-  document.getElementById('headerRight').innerHTML = '';
-  document.getElementById('headerSub').textContent = 'Googleカレンダーと連携';
+function changeDay(n) {
+  currentDate = new Date(currentDate);
+  currentDate.setDate(currentDate.getDate() + n);
+  updateHeader();
+  loadDump();
+}
+function goToday() {
+  currentDate = new Date(); currentDate.setHours(0,0,0,0);
+  updateHeader();
+  loadDump();
 }
 
-async function showCalArea() {
-  document.getElementById('loginArea').style.display = 'none';
-  document.getElementById('calArea').style.display = 'block';
-  document.getElementById('headerSub').textContent = 'Googleカレンダー連携中 ✦';
-  document.getElementById('headerRight').innerHTML =
-    `<button class="logout-btn" onclick="handleLogout()">ログアウト</button>`;
-  await fetchCalendarColors();
+// ボックス追加
+function addBox(text = '') {
+  const id = Date.now();
+  entries.push({ id, text });
+  renderList();
+  // 新しいボックスにフォーカス
+  setTimeout(() => {
+    const el = document.getElementById('dump-' + id);
+    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }, 50);
+  autoSave();
 }
 
-// ── データ取得 ──
-function setLoading(val) {
-  document.getElementById('loadingBar').classList.toggle('visible', val);
+// 個別削除
+function deleteBox(id) {
+  entries = entries.filter(e => e.id !== id);
+  renderList();
+  autoSave();
 }
 
-async function fetchCalendarColors() {
-  try {
-    const res = await fetch(
-      'https://www.googleapis.com/calendar/v3/users/me/calendarList',
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-    if (!res.ok) return;
-    const data = await res.json();
-    calendarColorMap = {};
-    (data.items || []).forEach(cal => {
-      if (cal.backgroundColor) calendarColorMap[cal.id] = cal.backgroundColor;
-    });
-  } catch(e) { /* 色取得失敗はサイレントに無視 */ }
+// 全クリア
+function clearAll() {
+  if (entries.length === 0) return;
+  if (!confirm('全部クリアしますか？')) return;
+  entries = [];
+  renderList();
+  autoSave();
 }
 
-async function fetchEvents() {
-  if (!accessToken) return;
-  setLoading(true);
-  const timeMin = new Date(currentYear, currentMonth, 1).toISOString();
-  const timeMax = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).toISOString();
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=100`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-    if (res.status === 401) { showToast('セッションが切れました。再ログインしてください。'); handleLogout(); return; }
-    const data = await res.json();
-    allEvents = data.items || [];
-    renderCalendar();
-    renderUpcoming();
-  } catch(e) {
-    showToast('カレンダーの取得に失敗しました');
-  } finally {
-    setLoading(false);
-  }
+// テキスト更新
+function updateText(id, text) {
+  const entry = entries.find(e => e.id === id);
+  if (entry) entry.text = text;
+  autoSave();
 }
 
-// ── カレンダー描画（月曜始まり・等幅固定）──
-function renderCalendar() {
-  document.getElementById('monthLabel').textContent =
-    `${currentYear}年 ${MONTHS_JP[currentMonth]}`;
-
-  const today = new Date();
-  const firstDow = new Date(currentYear, currentMonth, 1).getDay();
-  const firstCol = (firstDow === 0) ? 6 : firstDow - 1;
-  const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
-
-  const eventMap = {};
-  allEvents.forEach(ev => {
-    const dk = (ev.start.date || ev.start.dateTime).substring(0, 10);
-    if (!eventMap[dk]) eventMap[dk] = [];
-    eventMap[dk].push(ev);
-  });
-
-  let html = '';
-  let date = 1, nextDate = 1;
-
-  for (let row = 0; row < 6; row++) {
-    if (date > lastDate) break;
-    html += '<tr>';
-    for (let col = 0; col < 7; col++) {
-      let cellDate, isOther = false;
-      const absCol = row * 7 + col;
-      if (absCol < firstCol) {
-        cellDate = prevLastDate - firstCol + absCol + 1; isOther = true;
-      } else if (date > lastDate) {
-        cellDate = nextDate++; isOther = true;
-      } else {
-        cellDate = date++;
-      }
-
-      const isSat = col === 5, isSun = col === 6;
-      const realDk = isOther ? null :
-        `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(cellDate).padStart(2,'0')}`;
-      const isToday = !isOther &&
-        today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===cellDate;
-      const holiday = realDk ? HOLIDAYS[realDk] : null;
-
-      let cls = 'cal-cell';
-      if (isOther) cls += ' other-month';
-      if (isToday) cls += ' is-today';
-      if (isSat) cls += ' is-sat';
-      if (isSun || holiday) cls += ' is-sun';
-      if (holiday) cls += ' is-holiday';
-
-      const dayEvents = (realDk && eventMap[realDk]) || [];
-      const maxShow = 3;
-      let evHtml = '';
-      dayEvents.slice(0, maxShow).forEach(ev => {
-        const isAllDay = !!ev.start.date;
-        const color = getEventColor(ev);
-        const title = ev.summary || '(無題)';
-        if (isAllDay) {
-          evHtml += `<span class="event-chip allday" style="background:${color}" title="${title}">${title}</span>`;
-        } else {
-          const t = new Date(ev.start.dateTime);
-          const timeStr = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-          evHtml += `<span class="event-chip timed" title="${title}"><span class="ev-dot" style="background:${color}"></span><span class="ev-label">${timeStr} ${title}</span></span>`;
-        }
-      });
-      if (dayEvents.length > maxShow) {
-        evHtml += `<div class="more-label">+${dayEvents.length - maxShow}</div>`;
-      }
-
-      html += `<td class="${cls}">
-        <div class="day-num-wrap">
-          <span class="day-num">${cellDate}</span>
-          ${holiday && !isOther ? '<span class="holiday-dot"></span>' : ''}
-        </div>
-        <div class="events-wrap">${evHtml}</div>
-      </td>`;
-    }
-    html += '</tr>';
-  }
-  document.getElementById('calBody').innerHTML = html;
+// 自動リサイズ
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
 }
 
-// ── 直近の予定 ──
-function renderUpcoming() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+function renderList() {
+  const el = document.getElementById('dumpList');
+  const count = document.getElementById('countLabel');
 
-  const upcoming = allEvents
-    .filter(ev => {
-      const s = new Date(ev.start.date || ev.start.dateTime);
-      return new Date(s.getFullYear(), s.getMonth(), s.getDate()) >= today;
-    })
-    .slice(0, 8);
-
-  if (upcoming.length === 0) {
-    document.getElementById('upcomingList').innerHTML =
-      `<div class="no-events">今月の残り予定はありません ✦</div>`;
+  if (entries.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">💭</span>
+        MIND RESETを押して<br>頭の中を吐き出そう
+      </div>`;
+    count.textContent = '';
     return;
   }
 
-  let html = '';
-  upcoming.forEach(ev => {
-    const startRaw = ev.start.date || ev.start.dateTime;
-    const start = new Date(startRaw);
-    const isAllDay = !!ev.start.date;
-    const color = getEventColor(ev);
-    const dow = DOW_JP[start.getDay()];
-    const isSat = start.getDay() === 6, isSun = start.getDay() === 0;
-    const evDk = startRaw.substring(0, 10);
-    const isToday = evDk === todayStr;
-    const holiday = HOLIDAYS[evDk];
-    const timeStr = isAllDay ? '終日' :
-      `${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}〜`;
+  el.innerHTML = entries.map(e => `
+    <div class="dump-box">
+      <textarea
+        class="dump-textarea"
+        id="dump-${e.id}"
+        placeholder="頭の中にあることを自由に…"
+        oninput="updateText(${e.id}, this.value); autoResize(this)"
+      >${e.text}</textarea>
+      <button class="dump-delete" onclick="deleteBox(${e.id})" title="削除">✕</button>
+    </div>
+  `).join('');
 
-    html += `<div class="upcoming-item ${isToday?'is-today-ev':''}">
-      <div class="upcoming-date">
-        <div class="u-day">${start.getDate()}</div>
-        <div class="u-dow ${isSat?'is-sat':''} ${isSun||holiday?'is-sun':''}">${holiday?'祝':dow}</div>
-      </div>
-      <div class="upcoming-bar" style="background:${color}"></div>
-      <div class="upcoming-info">
-        <div class="upcoming-title">${ev.summary||'(無題)'}${isToday?'<span class="today-badge">今日</span>':''}</div>
-        <div class="upcoming-meta">${timeStr}${holiday?' · '+holiday:''}</div>
-      </div>
-    </div>`;
+  // 各テキストエリアの高さを調整
+  entries.forEach(e => {
+    const ta = document.getElementById('dump-' + e.id);
+    if (ta) autoResize(ta);
   });
-  document.getElementById('upcomingList').innerHTML = html;
+
+  count.textContent = `${entries.length}件`;
 }
 
-// ── ナビゲーション ──
-async function moveMonth(delta) {
-  currentMonth += delta;
-  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  await fetchEvents();
+// 保存
+let isSaving = false;
+function autoSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 1000);
 }
 
-async function goThisMonth() {
-  const now = new Date();
-  currentYear = now.getFullYear(); currentMonth = now.getMonth();
-  await fetchEvents();
+async function save() {
+  if (isSaving) return;
+  isSaving = true;
+  const key = dateStr(currentDate);
+  const json = JSON.stringify(entries);
+  try {
+    await sbFetch(`brain_dumps?date=eq.${key}`, { method: 'DELETE' });
+    await sbFetch('brain_dumps', {
+      method: 'POST',
+      body: JSON.stringify({ date: key, entries_json: json })
+    });
+    showBadge();
+  } catch(e) {
+    console.error('保存エラー:', e);
+  } finally {
+    isSaving = false;
+  }
 }
 
-// ── Toast ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ── 初期化 ──
-window.onload = () => {
-  const script = document.createElement('script');
-  script.src = 'https://accounts.google.com/gsi/client';
-  script.onload = () => {
-    initGIS();
-    const saved = localStorage.getItem('gcal_token');
-    if (saved) {
-      accessToken = saved;
-      showCalArea();
-      fetchEvents();
+async function loadDump() {
+  entries = [];
+  try {
+    const rows = await sbFetch(`brain_dumps?date=eq.${dateStr(currentDate)}&select=*`);
+    if (rows && rows.length > 0) {
+      entries = JSON.parse(rows[0].entries_json || '[]');
     }
-  };
-  document.head.appendChild(script);
-};
+  } catch(e) { console.error(e); }
+  renderList();
+}
+
+function showBadge() {
+  const b = document.getElementById('savedBadge');
+  b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 2000);
+}
+
+// 初期化
+updateHeader();
+loadDump();
 </script>
 </body>
 </html>
